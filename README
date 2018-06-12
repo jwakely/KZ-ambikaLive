@@ -1,3 +1,68 @@
+Ambika Live (we'll call it that for now)
+
+This project is a series of modifications (improvements) over the top of the YAM fork of the original fimrware for Ambika.
+
+Changes:
+
+ENV/LFO/MOD slot cycling with page buttons:
+	- Repeatedly pressing buttons for ENV/LFO and MOD pages now cycles through slots.
+	- Makes for muscle memory access to what you’re after quickly. e.g (double click for LFO2)
+	- Good for 2 handed operation.
+
+Turbo patch name editing!
+	- Can now press A,a or 1 to jump to those characters, insert space, or move cursor with buttons.
+	- Super quick 2 handed name editing!
+	- ( A | a | 1 | _ | <- | -> save | exit)
+
+'Drum' modulation destinations.
+	- Same as Osc1 and Osc2 destinations, but with +/-32 semitones range for wider pitch envelopes.
+	- The standard coarse pitch mod destinations don't have enough range for good drum sounds, ad the envelopes curves arent steep enough.
+	- But, the standard envelopes can be 'squared' by using the modifiers for a steeper curve. Routing one of these 'squared' envelopes to 'drum' destination with an amount of 32, Ambika can achieve much better drum sounds or 808 like sounds.
+	- e.g Modul.  1|srce mod1|dest drm1|amnt   32
+	-     Modif.  1|in1  env1|in2  env1|oper prod  (squaring the Env1 envelope)
+
+Solo polyphony mode:
+	-Same as mono but only uses a single voice. Great if you designed a patch for a single voice (legato/glide) but want to load it onto a part that has multiple voices assigned and don’t want the unison/stacked sound.
+
+Arp Latch Mode:
+	-Acts like the arp latch on Microkorg. Pressing a key once triggers note on, a second time for note off.
+
+Chord Sequencer mode:
+	-In Chord Seq mode, the sequencer will pass each block of 4 consecutive notes on to the arp as a chord.
+	-The 'lenp' paramenter defines how many steps between chord changes.
+	-The note sequence length is locked to 16 steps (4 chords) for now.
+	-Use rests to reduce the number of notes in each chord
+
+Sequencer Tweaks:
+	-Rests are now displayed similar to a tracker where '---' is displayed when there is no note assigned.
+	-Makes for more visual drum sequences.
+
+Performance Page Tweaks
+	-When in the main performance page, the first 4 buttons now act as part mutes. Cool for jamming with the chord sequencer!
+	-Button 5 resyncs the clocks. This is a bit of a workaround for the moment until I can get them to stay locked without having to resync (any ideas?)
+
+Optional CC Maps (pref page 2)
+	-Can choose between Ambika standard, Shruthi XT, and Novation Launchkey CC assignments (more to come)
+	-Ideally these would be loadable from SDcard, but the only way I can think to fit them would be to use the boot loader to overwrite CC maps in progmem which is beyond my skills :frowning:
+
+
+
+Work in progress…
+
+Launchkey integration!
+
+USB host for Launchkey via Arduino micro+micro USB Host via port 7 for connecting Launchkey directly to the Ambika.
+Buss power the Arduino micro+Launchkey (might need regulator upgrade on ambika???)
+Launchkey Sequencer mode: RGB pads will show sequence ‘playhead’ with one color, and knobs will edit either note, seq1 or seq2 depending on mode. Idle pads will show other colors whose intensity will represent the current sequencer values.
+(‘Launchkey Seq’ mode is already in prefs page 2, but only shows the playhead now)
+
+Source Code: Macros for enabling/disabling various functions to free up space temporarily to mess around.
+
+The YAM fork of the original firmware can be found here (https://github.com/bjoeri/ambika).
+As this is forked on top of YAM, all the YAM changes also apply.
+
+--- YAM Notes ----
+
 Y A M - Yet Another Mutation
 
 This is a project for an alternative firmware for Ambika, a hybrid MIDI polysynth and voicecard host from Mutable Instruments. 
