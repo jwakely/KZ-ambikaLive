@@ -243,7 +243,7 @@ inline void Voice::LoadSources() {
   modulation_destinations_[MOD_DST_VCA] = part_.volume << 1;
   
   // Load and scale to 0-16383 the initial value of each modulated parameter.
-  dst_[MOD_DST_OSC_1] = dst_[MOD_DST_OSC_2] = 8192;
+  dst_[MOD_DST_OSC_1] = dst_[MOD_DST_OSC_2] = dst_[MOD_DST_OSC_1_DRUM] = dst_[MOD_DST_OSC_2_DRUM] = 8192;
   dst_[MOD_DST_OSC_1_2_COARSE] = dst_[MOD_DST_OSC_1_2_FINE] = 8192;
   dst_[MOD_DST_PARAMETER_1] = U8U8Mul(patch_.osc[0].parameter, 128);
   dst_[MOD_DST_PARAMETER_2] = U8U8Mul(patch_.osc[1].parameter, 128);
@@ -390,6 +390,7 @@ inline void Voice::RenderOscillators() {
     pitch += patch_.osc[i].detune;
     // -16 / +16 semitones by the routed modulations.
     pitch += (dst_[MOD_DST_OSC_1 + i] - 8192) >> 2;
+    pitch += (dst_[MOD_DST_OSC_1_DRUM + i] - 8192) >> 1;
 
     if (pitch >= kHighestNote) {
       pitch = kHighestNote;
