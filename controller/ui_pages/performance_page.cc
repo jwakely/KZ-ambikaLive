@@ -33,6 +33,7 @@ const prog_EventHandlers PerformancePage::event_handlers_ PROGMEM = {
   ParameterEditor::OnInit,
   ParameterEditor::SetActiveControl,
   OnIncrement,
+  ParameterEditor::OnIncrementAndCycle,
   OnClick,
   ParameterEditor::OnPot,
   OnKey,
@@ -76,7 +77,14 @@ uint8_t PerformancePage::OnClick() {
 
 /* static */
 uint8_t PerformancePage::OnKey(uint8_t key) {
-  return ParameterEditor::OnKey(key);
+  if (key <= SWITCH_4){
+      multi.ToggleMute(key);
+    return 1;
+  } else if (key == SWITCH_5){
+      multi.SyncPartClocks();
+  } else {
+      return ParameterEditor::OnKey(key);
+  }
 }
 
 /* static */
@@ -87,6 +95,11 @@ void PerformancePage::UpdateLeds() {
       leds.set_pixel(LED_STATUS, 0x0f);
     }
     leds.set_pixel(LED_1 + (multi.step() & 0x07), 0x03);
+  }
+  for (uint8_t led = LED_1; led <= LED_4; led++){
+    if (!multi.IsPartMuted(led)){
+      leds.set_pixel(led, 0xf0);
+    }
   }
 }
 
