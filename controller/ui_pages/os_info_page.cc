@@ -36,6 +36,7 @@ const prog_EventHandlers OsInfoPage::event_handlers_ PROGMEM = {
   OnInit,
   SetActiveControl,
   OnIncrement,
+  OnIncrementAndCycle,
   OnClick,
   OnPot,
   OnKey,
@@ -131,7 +132,7 @@ void OsInfoPage::PrintVersionNumber(char* buffer, uint8_t number) {
 /* static */
 void OsInfoPage::UpdateScreen() {
   char* buffer = display.line_buffer(0) + 1;
-  memcpy_P(&buffer[0], PSTR("ambikaYAM"), 9);
+  memcpy_P(&buffer[0], PSTR("ambikaKEZ"), 9);
   PrintVersionNumber(&buffer[10], kSystemVersion);
 
   memcpy_P(&buffer[15], PSTR("port 1 device ?"), 15);
