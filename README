@@ -45,6 +45,7 @@ Optional CC Maps (pref page 2)
 	-Can choose between Ambika standard, Shruthi XT, and Novation Launchkey CC assignments (more to come)
 	-Ideally these would be loadable from SDcard, but the only way I can think to fit them would be to use the boot loader to overwrite CC maps in progmem which is beyond my skills :frowning:
 
+Unfortunately these mods will not be fully compatible with saved patches, though updating them would not be hard. It would mainly be checking the polyphony mode is correct, and resaving.
 
 
 Work in progress…
