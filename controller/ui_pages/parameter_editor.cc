@@ -34,6 +34,7 @@ const prog_EventHandlers ParameterEditor::event_handlers_ PROGMEM = {
   OnInit,
   SetActiveControl,
   OnIncrement,
+  OnIncrementAndCycle,
   OnClick,
   OnPot,
   OnKey,
@@ -112,7 +113,8 @@ uint8_t ParameterEditor::OnIncrement(int8_t increment) {
         parameter_index(active_control_),
         part_index(active_control_),
         instance_index(active_control_),
-        increment);
+        increment,
+        false);
     edit_mode_ = EDIT_STARTED_BY_ENCODER;
   } else {
     int8_t new_control = active_control_ + increment;
@@ -132,11 +134,39 @@ uint8_t ParameterEditor::OnIncrement(int8_t increment) {
   }
   return 1;
 }
+    
+/* static */
+bool ParameterEditor::OnIncrementAndCycle(int8_t parameter_index, int8_t part) {
+  const Parameter& parameter = parameter_manager.parameter(parameter_index);
+  bool isLastPage = false;
+  if (parameter_manager.GetValue(parameter, part, 0) >= parameter.max_value){
+    parameter_manager.SetValue(parameter, part, 0, 0, 1);
+    isLastPage = true;
+  } else {
+    parameter_manager.Increment(parameter, part, 0, 1, false);
+  }
+  return isLastPage;
+}
+  
+/* static */
+  /*
+   // ON KEY
+uint8_t ParameterEditor::OnKey(uint8_t key) {
+  if (key == SWITCH_8){
+    uint8_t parameter_id = parameter_index(7);
+    if (parameter_id == 0xf8 || parameter_id == 0xf9) {
+      ui.ShowPageRelative(1);
+    }
+  }
+  return 1;
+}
+*/
 
 /* static */
 uint8_t ParameterEditor::OnPot(uint8_t index, uint8_t value) {
   uint8_t parameter_id = parameter_index(index);
-  if (parameter_id == 0xff) {
+  if (parameter_id >= 0xf8) {
+    //Do nothing for empty parameter slots, or 'more->' and '<-back'
     return 1;
   }
   const Parameter& parameter = parameter_manager.parameter(parameter_id);
@@ -214,7 +244,13 @@ void ParameterEditor::UpdateScreen() {
     if ((row + 10) != kLcdWidth) {
       buffer[10] = kDelimiter;
     }
-    if (parameter_id != 0xff) {
+    if (parameter_id == 0xf8) {
+    // KEZ mod ->more
+      strncpy_P(&buffer[4], PSTR("more->"), 6);
+    } else if (parameter_id == 0xf9) {
+    // KEZ mod <-back
+      strncpy_P(&buffer[4], PSTR("<-back"), 6);
+    } else if (parameter_id != 0xff) {
       const Parameter& parameter = parameter_manager.parameter(parameter_id);
       uint8_t value = parameter_manager.GetValue(
           parameter,

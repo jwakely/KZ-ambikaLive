@@ -36,6 +36,8 @@ class ParameterEditor : public UiPage {
   static void SetActiveControl(ActiveControl active_control);
 
   static uint8_t OnIncrement(int8_t increment);
+  static bool OnIncrementAndCycle(int8_t parameter_index, int8_t part);
+//  static uint8_t OnKey(uint8_t key);
   static uint8_t OnPot(uint8_t index, uint8_t value);
   
   static void UpdateScreen();
