@@ -52,12 +52,15 @@ enum ArpSequencerMode {
   ARP_SEQUENCER_MODE_STEP,
   ARP_SEQUENCER_MODE_ARPEGGIATOR,
   ARP_SEQUENCER_MODE_NOTE,
+  ARP_SEQUENCER_MODE_ARPEGGIATOR_LATCH,
+  ARP_SEQUENCER_MODE_CHORD,
   ARP_SEQUENCER_MODE_LAST
 };
 
 enum PolyphonyMode {
   MONO,
   POLY,
+  SOLO,
   UNISON_2X,
   CYCLIC,
   CHAIN,
@@ -216,6 +219,9 @@ class Part {
   void Clock();
   void Start();
   void Stop();
+  void ToggleMute();
+    
+  uint8_t part_number;
   
   uint8_t num_pressed_keys() const { return pressed_keys_.size(); }
   
@@ -260,6 +266,8 @@ class Part {
   void AssignVoices(uint8_t allocation);
   inline uint8_t flags() const { return flags_; }
   inline void ClearFlag(uint8_t flag) { flags_ &= ~flag; }
+  
+  inline bool isMuted() const { return is_muted_; }
   
 
  private:
@@ -323,6 +331,7 @@ class Part {
   
   // Sequencer state.
   uint8_t sequencer_step_[kNumSequences];
+  uint8_t chord_step_counter_;
   
   // Arpeggiator state.
   uint8_t previous_generated_note_;
@@ -330,6 +339,10 @@ class Part {
   int8_t arp_direction_;
   int8_t arp_step_;
   int8_t arp_octave_;
+  // KZ MOD
+  int8_t arp_previous_mode_;
+  bool is_muted_;
+  int8_t part_volume_;
   
   // Whether some settings have been changed by code.
   uint8_t flags_;
@@ -337,6 +350,7 @@ class Part {
   // Backup copy of the "polyphony mode" parameter to reinitialize if necessary
   // all allocators when a new program is loaded.
   uint8_t polyphony_mode_;
+  uint8_t launchkey_current_program_;
   
   DISALLOW_COPY_AND_ASSIGN(Part);
 };
