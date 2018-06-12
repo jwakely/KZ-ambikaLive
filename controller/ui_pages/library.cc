@@ -17,6 +17,8 @@
 //
 // Special UI page for loading/saving operations.
 
+#include "controller/features.h"
+
 #include "controller/ui_pages/library.h"
 
 #include "avrlib/string.h"
@@ -35,6 +37,7 @@ const prog_EventHandlers Library::event_handlers_ PROGMEM = {
   OnInit,
   UiPage::SetActiveControl,
   OnIncrement,
+  UiPage::OnIncrementAndCycle,
   OnClick,
   UiPage::OnPot,
   OnKey,
@@ -96,21 +99,23 @@ uint8_t Library::OnIncrement(int8_t increment) {
   if (action_ == LIBRARY_ACTION_BROWSE ||
       edit_mode_ == EDIT_STARTED_BY_ENCODER) {
     if (active_control_ == 0) {
+      // Change Bank
       int8_t bank = location_.bank;
       location_.bank = Clip(bank + increment, 0, 25);
     } else if (active_control_ == 1){
+      // Change Slot
       int16_t slot = location_.slot;
       location_.slot = Clip(location_.slot + increment, 0, 127);
     } else {
+      // Edit Name
       char character = name_[active_control_ - 2];
       character = Clip(character + increment, 32, 127);
       name_[active_control_ - 2] = character;
     }
   }
   if (action_ == LIBRARY_ACTION_SAVE && edit_mode_ == EDIT_IDLE) {
-    int8_t control = active_control_;
-    control = Clip(control + increment, 0, 16);
-    active_control_ = control;
+    active_control_ = Clip(active_control_ + increment, 0, 16);
+    // KEZ TODO: Print name on second line so we know what we're saving over
   }
   
   if (action_ == LIBRARY_ACTION_BROWSE) {
@@ -202,10 +207,12 @@ uint8_t Library::OnKeyBrowse(uint8_t key) {
         }
         break;
 
+#ifndef DISABLE_VERSION_MANAGER
       case SWITCH_5:
         ui.ShowPage(PAGE_VERSION_MANAGER);
         break;
-
+#endif
+        
       case SWITCH_7:
         more_ ^= 1;
         break;
@@ -233,7 +240,11 @@ uint8_t Library::OnKeyBrowse(uint8_t key) {
       case SWITCH_3:
         ui.ShowPage(PAGE_OS_INFO);
         break;
-        
+#ifndef DISABLE_CARD_INFO_PAGE
+      case SWITCH_4:
+        ui.ShowPage(PAGE_CARD_INFO);
+        break;
+#endif
       case SWITCH_7:
         more_ ^= 1;
         break;
@@ -250,7 +261,32 @@ uint8_t Library::OnKeyBrowse(uint8_t key) {
 /* static */
 uint8_t Library::OnKeySave(uint8_t key) {
   switch (key) {
-    case 6:
+    case SWITCH_1:
+      // KZ MOD: Jump to A
+      name_[active_control_ - 2] = 'A';
+      break;
+    case SWITCH_2:
+      // KZ MOD: Jump to a
+      name_[active_control_ - 2] = 'a';
+      break;
+    case SWITCH_3:
+      // KZ MOD: Jump to 1
+      name_[active_control_ - 2] = '1';
+      break;
+    case SWITCH_4:
+      // KZ MOD: Insert Space
+      name_[active_control_ - 2] = 32;
+      active_control_ = Clip(active_control_ + 1, 0, 16);
+      break;
+    case SWITCH_5:
+      // KZ MOD: Move Cursor Left
+      active_control_ = Clip(active_control_ - 1, 0, 16);
+      break;
+    case SWITCH_6:
+      // KZ MOD: Move Cursor Right
+      active_control_ = Clip(active_control_ + 1, 0, 16);
+      break;
+    case SWITCH_7:
       {
         if (storage.Save(location_) == FS_OK) {
           SaveLocation();
@@ -261,7 +297,7 @@ uint8_t Library::OnKeySave(uint8_t key) {
       }
       break;
       
-    case 7:
+    case SWITCH_8:
       Browse();
       break;
   }   
@@ -311,10 +347,22 @@ void Library::UpdateScreen() {
   if (action_ == LIBRARY_ACTION_BROWSE) {
     buffer = display.line_buffer(1) + 1;
     if (more_) {
-      strncpy_P(&buffer[0], PSTR("pref|~ini|about               more|exit"), 39);
+#ifdef DISABLE_CARD_INFO_PAGE
+      strncpy_P(&buffer[0], PSTR("pref|~ini|Firmware update     more|exit"), 39);
+#else
+      strncpy_P(&buffer[0], PSTR("pref|~ini|OS  |card           more|exit"), 39);
+#endif
       buffer[4] = kDelimiter;
+      buffer[9] = kDelimiter;
+#ifndef DISABLE_CARD_INFO_PAGE
+      buffer[14] = kDelimiter;
+#endif
     } else {
+#ifdef DISABLE_VERSION_MANAGER
+      strncpy_P(&buffer[0], PSTR(" |   init|send|save|          more|exit"), 39);
+#else
       strncpy_P(&buffer[0], PSTR(" |   init|send|save|versions  more|exit"), 39);
+#endif
       buffer[9] = kDelimiter;
       buffer[14] = kDelimiter;
       buffer[19] = kDelimiter;
@@ -322,8 +370,13 @@ void Library::UpdateScreen() {
     buffer[34] = kDelimiter;
   } else {
     buffer = display.line_buffer(1) + 1;
-    strncpy_P(&buffer[28], PSTR("save|cancel"), 11);
-    buffer[32] = kDelimiter;
+    // KZ MOD: Shortcuts
+    strncpy_P(&buffer[0], PSTR(" A  | a  | 1  | _  | ~  | ~   save|exit"), 39);
+    for (uint8_t x = 4; x < 29; x += 5){
+      buffer[x] = kDelimiter;
+    }
+    buffer[21] = 127;  // "<-"
+    buffer[34] = kDelimiter;
   }
   
   // And now the cursor.
