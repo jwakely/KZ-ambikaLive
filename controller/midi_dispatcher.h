@@ -230,6 +230,12 @@ class MidiDispatcher : public midi::MidiDevice {
       Send3(0x90 | multi.part_channel(part), note, velocity);
     }
   }
+  
+  static inline void SetLaunchKeyPadColor(uint8_t note, uint8_t color) {
+    // If LaunchKey Mode is active
+    // LaunchKey RGB LEDS listen to channel 16 note 40+
+    Send3(0x90 | 15, note, color);
+  }
 
   static inline void OnStart() {
     if (mode() == MIDI_OUT_SEQUENCER) {
