@@ -86,6 +86,9 @@ swap colors
 inpt filter
 outp mode
 ext
+cc map
+launchkey seq
+lseq
 
 omni
 amnt
@@ -231,6 +234,9 @@ deca
 rele
 lfo4
 vca
+drm1
+drm2
+
 
 env 1
 env 2
@@ -281,6 +287,8 @@ decay
 release
 lfo 4
 vca
+drum 1
+drum 2
 
 
 lp
@@ -294,6 +302,8 @@ lfo~env
 step seq
 arpeggio
 pattern
+latch
+chord seq
 
  off
 add
@@ -309,6 +319,7 @@ lag
 
 mono
 poly
+solo
 2x unison
 cyclic
 chain
@@ -320,6 +331,7 @@ played
 random
 chord
 
+2/1
 1/1
 3/4
 2/3
@@ -341,6 +353,12 @@ sequencer
 controllr
 chain
 full
+
+ambika
+shruthiXT
+launchkey
+
+lkey
 
 ....
 ...s
