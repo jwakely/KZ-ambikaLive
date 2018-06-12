@@ -227,6 +227,8 @@ enum ModulationDestination {
   MOD_DST_LFO_4,
   
   MOD_DST_VCA,
+  MOD_DST_OSC_1_DRUM,
+  MOD_DST_OSC_2_DRUM,
 
   MOD_DST_LAST
 };
