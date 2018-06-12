@@ -98,6 +98,9 @@ static const uint8_t kNumTicksPerStep = 6;
 class Multi {
  public:
   Multi() { }
+  static uint8_t launchkey_play_button_note_;
+  static bool launchkey_play_button_note_active_;
+  
   static void Init(bool force_reset);
   
   static void InitSettings(InitializationMode mode);
@@ -140,9 +143,30 @@ class Multi {
       uint8_t channel,
       uint8_t controller,
       uint8_t value) {
-    for (uint8_t i = 0; i < kNumParts; ++i) {
-      if (data_.part_mapping_[i].receive_channel(channel)) {
-        parts_[i].ControlChange(controller, value);
+    if (controller >= 114 && value == 127){
+      /*
+      // Special buttons. Only on key down.
+      switch (controller){
+        case 114: // Launchkey Stop Button
+          StopNote(launchkey_play_button_note_);
+          launchkey_play_button_note_active_ = false;
+          return;
+        case 115: // Launchkey Play Button
+          if (!launchkey_play_button_note_active_) {
+            StartNote(launchkey_play_button_note_);
+         //   launchkey_play_button_note_active_ = true;
+          } else {
+            StopNote(launchkey_play_button_note_);
+            launchkey_play_button_note_active_ = false;
+          }
+          return;
+      }
+      */
+    } else {
+      for (uint8_t i = 0; i < kNumParts; ++i) {
+        if (data_.part_mapping_[i].receive_channel(channel)) {
+          parts_[i].ControlChange(controller, value);
+        }
       }
     }
   }
@@ -261,6 +285,8 @@ class Multi {
 
   static uint8_t SolveAllocationConflicts(uint8_t constraint);
   static void AssignVoicesToParts();
+  static void SyncPartClocks();
+  static void ToggleMute(uint8_t part);
   
   static uint8_t part_channel(Part* part) {
     for (uint8_t i = 0; i < kNumParts; ++i) {
@@ -270,7 +296,7 @@ class Multi {
     }
     return 0;
   }
-  
+  static bool IsPartMuted(uint8_t part) { return parts_[part].isMuted(); }
   static uint8_t step() { return step_count_; }
   static uint8_t running() { return running_; }
   static void Touch();
@@ -293,6 +319,7 @@ class Multi {
  private:
   static void ComputeInternalClockOverflowsTable();
   
+  
   // Incremented at 39kHz
   static uint16_t clock_counter_;
   static uint16_t lfo_refresh_counter_;
@@ -313,11 +340,12 @@ class Multi {
   // This list of tick durations is computed from the BPM and the groove
   // template.
   static uint16_t tick_duration_table_[kNumStepsInGroovePattern];
-  
+
 
   static MultiData data_;
   static Part parts_[kNumParts];
   static uint8_t flags_;
+  
   
   DISALLOW_COPY_AND_ASSIGN(Multi);
 };

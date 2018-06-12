@@ -23,6 +23,7 @@ namespace ambika {
 /* extern */
 Multi multi;
 
+
 /* <static> */
 MultiData Multi::data_;
 Part Multi::parts_[kNumParts];
@@ -37,6 +38,8 @@ uint8_t Multi::running_;
 uint8_t Multi::idle_ticks_;
 uint16_t Multi::tick_duration_table_[kNumStepsInGroovePattern];
 uint8_t Multi::flags_;
+uint8_t Multi::launchkey_play_button_note_ = 60;
+bool Multi::launchkey_play_button_note_active_ = false;
 /* </static> */
 
 static const prog_MultiData init_settings PROGMEM = {
@@ -112,7 +115,20 @@ void Multi::AssignVoicesToParts() {
     parts_[i].AssignVoices(data_.part_mapping_[i].voice_allocation);
   }
 }
-
+    
+/* static */
+void Multi::SyncPartClocks() {
+    for (uint8_t i = 0; i < kNumParts; ++i) {
+        parts_[i].Start();
+    }
+}
+    
+/* static */
+void Multi::ToggleMute(uint8_t part) {
+    parts_[part].ToggleMute();
+}
+    
+    
 /* static */
 void Multi::Touch() {
   ComputeInternalClockOverflowsTable();
