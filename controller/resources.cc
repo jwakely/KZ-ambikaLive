@@ -21,7 +21,7 @@
 // make resources
 
 
-#include "controller\resources.h"
+#include "controller/resources.h"
 
 namespace ambika {
 
@@ -90,6 +90,9 @@ static const prog_char str_res_swap_colors[] PROGMEM = "swap colors";
 static const prog_char str_res_inpt_filter[] PROGMEM = "inpt filter";
 static const prog_char str_res_outp_mode[] PROGMEM = "outp mode";
 static const prog_char str_res_ext[] PROGMEM = "ext";
+static const prog_char str_res_cc_map[] PROGMEM = "cc map";
+static const prog_char str_res_launchkey_seq[] PROGMEM = "launchkey seq";
+static const prog_char str_res_lseq[] PROGMEM = "lseq";
 static const prog_char str_res_omni[] PROGMEM = "omni";
 static const prog_char str_res_amnt[] PROGMEM = "amnt";
 static const prog_char str_res_srce[] PROGMEM = "srce";
@@ -224,6 +227,8 @@ static const prog_char str_res_attk[] PROGMEM = "attk";
 static const prog_char str_res_deca[] PROGMEM = "deca";
 static const prog_char str_res_rele[] PROGMEM = "rele";
 static const prog_char str_res_vca[] PROGMEM = "vca";
+static const prog_char str_res_drm1[] PROGMEM = "drm1";
+static const prog_char str_res_drm2[] PROGMEM = "drm2";
 static const prog_char str_res_env_1[] PROGMEM = "env 1";
 static const prog_char str_res_env_2[] PROGMEM = "env 2";
 static const prog_char str_res_env_3[] PROGMEM = "env 3";
@@ -257,6 +262,8 @@ static const prog_char str_res_vibrato[] PROGMEM = "vibrato";
 static const prog_char str_res_subosc[] PROGMEM = "subosc";
 static const prog_char str_res_crush[] PROGMEM = "crush";
 static const prog_char str_res_frequency[] PROGMEM = "frequency";
+static const prog_char str_res_drum_1[] PROGMEM = "drum 1";
+static const prog_char str_res_drum_2[] PROGMEM = "drum 2";
 static const prog_char str_res_lp[] PROGMEM = "lp";
 static const prog_char str_res_bp[] PROGMEM = "bp";
 static const prog_char str_res_hp[] PROGMEM = "hp";
@@ -266,6 +273,7 @@ static const prog_char str_res_envTlfo[] PROGMEM = "env~lfo";
 static const prog_char str_res_lfoTenv[] PROGMEM = "lfo~env";
 static const prog_char str_res_step_seq[] PROGMEM = "step seq";
 static const prog_char str_res_arpeggio[] PROGMEM = "arpeggio";
+static const prog_char str_res_chord_seq[] PROGMEM = "chord seq";
 static const prog_char str_res_add[] PROGMEM = "add";
 static const prog_char str_res_prod[] PROGMEM = "prod";
 static const prog_char str_res_attn[] PROGMEM = "attn";
@@ -277,6 +285,7 @@ static const prog_char str_res_qtz[] PROGMEM = "qtz";
 static const prog_char str_res_lag[] PROGMEM = "lag";
 static const prog_char str_res_mono[] PROGMEM = "mono";
 static const prog_char str_res_poly[] PROGMEM = "poly";
+static const prog_char str_res_solo[] PROGMEM = "solo";
 static const prog_char str_res_2x_unison[] PROGMEM = "2x unison";
 static const prog_char str_res_cyclic[] PROGMEM = "cyclic";
 static const prog_char str_res_chain[] PROGMEM = "chain";
@@ -285,6 +294,7 @@ static const prog_char str_res_down[] PROGMEM = "down";
 static const prog_char str_res_up_down[] PROGMEM = "up&down";
 static const prog_char str_res_played[] PROGMEM = "played";
 static const prog_char str_res_chord[] PROGMEM = "chord";
+static const prog_char str_res_2_1[] PROGMEM = "2/1";
 static const prog_char str_res_1_1[] PROGMEM = "1/1";
 static const prog_char str_res_3_4[] PROGMEM = "3/4";
 static const prog_char str_res_2_3[] PROGMEM = "2/3";
@@ -304,6 +314,10 @@ static const prog_char str_res_thru[] PROGMEM = "thru";
 static const prog_char str_res_sequencer[] PROGMEM = "sequencer";
 static const prog_char str_res_controllr[] PROGMEM = "controllr";
 static const prog_char str_res_full[] PROGMEM = "full";
+static const prog_char str_res_ambika[] PROGMEM = "ambika";
+static const prog_char str_res_shruthixt[] PROGMEM = "shruthiXT";
+static const prog_char str_res_launchkey[] PROGMEM = "launchkey";
+static const prog_char str_res_lkey[] PROGMEM = "lkey";
 static const prog_char str_res_____[] PROGMEM = "....";
 static const prog_char str_res____s[] PROGMEM = "...s";
 static const prog_char str_res___p_[] PROGMEM = "..p.";
@@ -449,6 +463,9 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_inpt_filter,
   str_res_outp_mode,
   str_res_ext,
+  str_res_cc_map,
+  str_res_launchkey_seq,
+  str_res_lseq,
   str_res_omni,
   str_res_amnt,
   str_res_srce,
@@ -587,6 +604,8 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_rele,
   str_res_lfo4,
   str_res_vca,
+  str_res_drm1,
+  str_res_drm2,
   str_res_env_1,
   str_res_env_2,
   str_res_env_3,
@@ -635,6 +654,8 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_release,
   str_res_lfo_4,
   str_res_vca,
+  str_res_drum_1,
+  str_res_drum_2,
   str_res_lp,
   str_res_bp,
   str_res_hp,
@@ -645,6 +666,8 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_step_seq,
   str_res_arpeggio,
   str_res_pattern,
+  str_res_latch,
+  str_res_chord_seq,
   str_res_off,
   str_res_add,
   str_res_prod,
@@ -658,6 +681,7 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_lag,
   str_res_mono,
   str_res_poly,
+  str_res_solo,
   str_res_2x_unison,
   str_res_cyclic,
   str_res_chain,
@@ -667,6 +691,7 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_played,
   str_res_random,
   str_res_chord,
+  str_res_2_1,
   str_res_1_1,
   str_res_3_4,
   str_res_2_3,
@@ -687,6 +712,10 @@ PROGMEM const prog_char* const string_table[] = {
   str_res_controllr,
   str_res_chain,
   str_res_full,
+  str_res_ambika,
+  str_res_shruthixt,
+  str_res_launchkey,
+  str_res_lkey,
   str_res_____,
   str_res____s,
   str_res___p_,
@@ -905,9 +934,10 @@ const prog_uint16_t lut_res_scale_jogeshwari[] PROGMEM = {
    32767,    -20,     -5,  32767,
 };
 const prog_uint16_t lut_res_arpeggiator_patterns[] PROGMEM = {
-   21845,  62965,  46517,  54741,  43861,  22869,  38293,   2313,
-   37449,  21065,  18761,  54553,  27499,  23387,  30583,  28087,
-   22359,  28527,  30431,  43281,  28609,  53505,
+   65535,  21845,  62965,  46517,  54741,  43861,  22869,  38293,
+    2313,  37449,  21065,  18761,  54553,  27499,  23387,  30583,
+   28087,  22359,  28527,  30431,  43281,  28609,  53505,  17476,
+   52428,  61166,   4369,  18705,   1169,   5265,
 };
 const prog_uint16_t lut_res_groove_swing[] PROGMEM = {
      127,    127,   -127,   -127,    127,    127,   -127,   -127,
