@@ -43,6 +43,7 @@ const prog_EventHandlers UiPage::event_handlers_ PROGMEM = {
   OnInit,
   SetActiveControl,
   OnIncrement,
+  OnIncrementAndCycle,
   OnClick,
   OnPot,
   OnKey,
@@ -66,6 +67,11 @@ void UiPage::SetActiveControl(ActiveControl active_control) { }
 /* static */
 uint8_t UiPage::OnIncrement(int8_t increment) {
   return 1;
+}
+    
+/* static */
+  bool UiPage::OnIncrementAndCycle(int8_t parameter_index, int8_t part){
+  return false;
 }
 
 /* static */
