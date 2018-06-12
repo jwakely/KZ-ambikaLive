@@ -28,8 +28,9 @@ namespace ambika {
 /* static */
 SystemSettingsData SystemSettings::data_;
 
+// Make sure this has the correct number of elements
 static const prog_SystemSettingsData init_settings PROGMEM = {
-  0, 0, 1, 0, 1, 1, 1
+  0, 0, 1, 0, 1, 1, 1, 0, 0
 };
 
 /* static */

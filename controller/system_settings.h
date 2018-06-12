@@ -25,6 +25,13 @@
 #include <avr/pgmspace.h>
 
 namespace ambika {
+  
+enum CCMap {
+  CCMAP_AMBIKA,
+  CCMAP_SHRUTHI_XT,
+  CCMAP_LAUNCHKEY,
+  CCMAP_LAST
+};
 
 enum MidiOutMode {
   MIDI_OUT_THRU,
@@ -42,6 +49,8 @@ struct SystemSettingsData {
   uint8_t autobackup;
   uint8_t voicecard_leds;
   uint8_t swap_leds_colors;
+  uint8_t midi_cc_map;
+  uint8_t launchkey_mode;
   uint8_t padding[8];
   uint8_t checksum;
 };
@@ -58,6 +67,7 @@ class SystemSettings {
   static inline SystemSettingsData* mutable_data() { return &data_; }
   static inline const SystemSettingsData& data() { return data_; }
   
+  // Midi in filter bitmap
   static inline uint8_t rx_sysex() {
     return !(data_.midi_in_mask & 1);
   }
@@ -84,7 +94,9 @@ enum SystemParameter {
   PRM_SYSTEM_SNAP,
   PRM_SYSTEM_AUTOBACKUP,
   PRM_SYSTEM_VOICECARD_LEDS,
-  PRM_SYSTEM_VOICECARD_SWAP_LEDS_COLORS
+  PRM_SYSTEM_VOICECARD_SWAP_LEDS_COLORS,
+  PRM_SYSTEM_CC_MAP,
+  PRM_SYSTEM_LAUNCHKEY_MODE,
 };
 
 extern SystemSettings system_settings;
