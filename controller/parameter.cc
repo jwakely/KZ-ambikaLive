@@ -17,6 +17,9 @@
 //
 // Parameter definitions.
 
+
+#include "controller/features.h"
+
 #include "controller/parameter.h"
 
 #include <avr/pgmspace.h>
@@ -29,8 +32,11 @@
 #include "controller/system_settings.h"
 #include "controller/ui.h"
 
+
+
 namespace ambika {
 
+// UNIT_LAST = 28
 static const prog_uint16_t units_definitions[UNIT_LAST] PROGMEM = {
   0,                  // UNIT_RAW_UINT8
   0,                  // UNIT_UINT8
@@ -57,6 +63,8 @@ static const prog_uint16_t units_definitions[UNIT_LAST] PROGMEM = {
   STR_RES_SWING,      // UNIT_GROOVE_TEMPLATE
   STR_RES_____,       // UNIT_MIDI_IN_MASK
   STR_RES_THRU,       // UNIT_MIDI_OUT_MODE
+  0,                  // UNIT_MIDI_CHANNEL
+  STR_RES_AMBIKA,     // UNIT_CC_MAP
 };
 
 static const prog_char note_names[] PROGMEM = " CC# DD# E FF# GG# AA# B";
@@ -119,20 +127,40 @@ uint8_t Parameter::Clamp(uint8_t value) const {
 
 uint8_t Parameter::Increment(
     uint8_t current_value,
-    int8_t increment) const {
+    int8_t increment,
+    bool cycle) const {
   int16_t value = current_value;
   uint8_t new_value = current_value;
   if (unit == UNIT_INT8) {
     value = static_cast<int16_t>(static_cast<int8_t>(value));
     value += increment;
-    if (value >= static_cast<int8_t>(min_value) &&
-        value <= static_cast<int8_t>(max_value)) {
-      new_value = static_cast<uint8_t>(value);
+    if (cycle){
+      if (value > static_cast<int8_t>(max_value)){
+        new_value = static_cast<uint8_t>(min_value);
+      } else if (value < static_cast<int8_t>(min_value)){
+        new_value = static_cast<uint8_t>(max_value);
+      } else {
+        new_value = static_cast<uint8_t>(value);
+      }
+    } else {
+      if (value >= static_cast<int8_t>(min_value) && value <= static_cast<int8_t>(max_value)) {
+        new_value = static_cast<uint8_t>(value);
+      }
     }
   } else {
     value += increment;
-    if (value >= min_value && value <= max_value) {
-      new_value = static_cast<uint8_t>(value);
+    if (cycle){
+      if (value > max_value){
+        new_value = static_cast<uint8_t>(min_value);
+      } else if (value < min_value){
+        new_value = static_cast<uint8_t>(max_value);
+      } else {
+        new_value = static_cast<uint8_t>(value);
+      }
+    } else {
+      if (value >= min_value && value <= max_value) {
+        new_value = static_cast<uint8_t>(value);
+      }
     }
   }
   return new_value;
@@ -272,7 +300,7 @@ void Parameter::Print(
 }
 
 
-static const prog_char midi_cc_map[128] PROGMEM = {
+static const prog_char midi_cc_map[112] PROGMEM = {
    // 0-15
    255, 255, 255,  22, 255,  48, 255,  42,
    255,  23, 255, 255,  14,  15,   2,   3,
@@ -285,21 +313,63 @@ static const prog_char midi_cc_map[128] PROGMEM = {
    // 48-63
     33, 255, 255, 255,  29,  30,  31, 255,
    255, 255, 255, 255,  29,  30,  31, 255,
-   // 64-79
+   // 64-71
    255, 255, 255, 255,  47, 255,  27,  17,
+   // 72-79
     28,  25,  16,  26, 255, 255,  27, 255,
-   // 80-95
+   // 80-87
     28,  25, 255,  26, 255, 255,  27, 255,
+   // 88-95
     28,  25, 255,  26, 255, 255,  44,  45,
    // 96-111
    255, 255, 255, 255, 255, 255,  49,  50,
     51,  52,  53,  57,  73,  74, 255, 255,
-   // 112-127
-   255, 255, 255, 255, 255, 255, 255, 255,
-   255, 255, 255, 255, 255, 255, 255, 255
 };
 
-static const prog_char midi_nrpn_map[256] PROGMEM = {
+  // KEZ MOD : Need to save bytes wherever we can so split this table up
+  // And use conditional statements in the lookup function
+static const prog_char launchkey_cc_map[64] PROGMEM = {
+  // 0-7
+  255, 255, 255, 255, 255, 255, 255, 255,
+  // 8-15
+  255, 255, 255, 255, 255, 255, 255, 255,
+  // 16-23
+  255, 255, 255, 255, 255,  16,  17,  22,
+  // 24-31
+  1,   6,   7,   30,  48,  255, 255, 255,
+  // 32-39
+  28, 255, 255, 255, 255, 255, 255, 255,
+  // 40-47
+  28, 32,  8,   12,  13,  25,  26,  27,
+  // 48-63
+  28,  255, 255, 255, 255, 255, 26,  27,
+  // 56-63
+  28,  255, 255, 49, 255, 255, 26,  27,
+};
+  /*
+  // 64-71
+  28,  255, 255, 255, 255, 255, 255, 255,
+  // 72-79
+  255, 255, 255, 255, 255, 255, 255, 255,
+  // 80-87
+  255, 255, 255, 255, 255, 255, 255, 255,
+  // 88-95
+  255, 255, 255, 255, 255, 255, 255, 255,
+  // 96-103
+  255, 255, 255, 255, 255, 255, 254, 254,
+  // 104-111
+  254, 254, 254, 254, 254, 254, 254, 254,
+  // 112-119
+  254, 254, 254, 254, 254, 254, 255, 255,
+  // 120-127
+  255, 255, 255, 255, 255, 255, 255, 255,
+};
+   */
+
+
+  // KEZ MOD : Truncated 192-255 to save 128 bytes and
+  // replaced with conditional statements in the lookup function.
+static const prog_char midi_nrpn_map[192] PROGMEM = {
    // 0-15
      0,   1,   2,   3,   4,   5,   6,   7,
      8,   9,  10,  11,  12,  13,  14,  15,
@@ -323,32 +393,29 @@ static const prog_char midi_nrpn_map[256] PROGMEM = {
     73,  74, 255, 255, 255, 255, 255, 255,
    // 112-127
    42,  43,  44,  45,  46,  47,  48,  49,
-   50,  51,  52,  53,  54,  55,  56,  57,
-   // 128-143
-   254, 254, 254, 254, 254, 254, 254, 254,
-   254, 254, 254, 254, 254, 254, 254, 254,
-   // 144-159
-   254, 254, 254, 254, 254, 254, 254, 254,
-   254, 254, 254, 254, 254, 254, 254, 254,
-   // 160-175
-   254, 254, 254, 254, 254, 254, 254, 254,
-   254, 254, 254, 254, 254, 254, 254, 254,
-   // 176-191
-   254, 254, 254, 254, 254, 254, 254, 254,
-   254, 254, 254, 254, 254, 254, 254, 254,
-   // 192-207
-   255, 255, 255, 255, 255, 255, 255, 255,
-   255, 255, 255, 255, 255, 255, 255, 255,
-   // 208-223
-   255, 255, 255, 255, 255, 255, 255, 255,
-   255, 255, 255, 255, 255, 255, 255, 255,
-   // 224-255
-   255, 255, 255, 255, 255, 255, 255, 255,
-   255, 255, 255, 255, 255, 255, 255, 255
+   50,  51,  52,  53,  54,  55,  56,  57
 };
 
+#ifndef DIRTY_CC_LOOKUP
+static const prog_char launchkey_parameter_midi_cc[7] PROGMEM = {
+  // 25 PRM_PATCH_ENV_ATTACK
+  73,
+  // 26 PRM_PATCH_ENV_DECAY
+  75,
+  // 27 PRM_PATCH_ENV_SUSTAIN
+  70,
+  // 28 PRM_PATCH_ENV_RELEASE
+  72,
+  // 29 PRM_PATCH_LFO_SYNC
+  44,
+  // 30 PRM_PATCH_LFO_RATE
+  45,
+  // 31 PRM_PATCH_LFO_SHAPE
+  46
+};
 
-
+#endif
+ 
 static const prog_Parameter parameters[kNumParameters] PROGMEM = {
   // Parameters for patch editor.
   
@@ -678,12 +745,19 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     STR_RES_SPRD, STR_RES_SPREAD, STR_RES_PART },
   
   // 46
+#ifdef DISABLE_RAGAS
   { PARAMETER_LEVEL_PART,
     PRM_PART_RAGA,
     UNIT_RAGA, 0, 31,
     1, 0, 0xff, 0xff,
     STR_RES_RAGA, STR_RES_RAGA, STR_RES_PART },
-  
+#else
+  { PARAMETER_LEVEL_PART,
+    PRM_PART_RAGA,
+    UNIT_RAGA, 0, 2,
+    1, 0, 0xff, 0xff,
+    STR_RES_RAGA, STR_RES_RAGA, STR_RES_PART },
+#endif
   // 47
   { PARAMETER_LEVEL_PART,
     PRM_PART_LEGATO,
@@ -879,6 +953,20 @@ static const prog_Parameter parameters[kNumParameters] PROGMEM = {
     UNIT_INT8, -63, 63,
     1, 0, 0xff, 109,
     STR_RES_KEYBTVCF, STR_RES_KEYBTVCF, STR_RES_FILTER_1 },
+  
+  // 75
+  { PARAMETER_LEVEL_SYSTEM,
+    PRM_SYSTEM_CC_MAP,
+    UNIT_CC_MAP, CCMAP_AMBIKA, CCMAP_LAST - 1,
+    1, 0, 0xff, 0xff,
+    STR_RES_CC_MAP, STR_RES_CC_MAP, STR_RES_SYSTEM },
+  
+  // 76
+  { PARAMETER_LEVEL_SYSTEM,
+    PRM_SYSTEM_LAUNCHKEY_MODE,
+    UNIT_BOOLEAN, 0, 1,
+    1, 0, 0xff, 0xff,
+    STR_RES_LKEY, STR_RES_LAUNCHKEY_SEQ, STR_RES_SYSTEM },
 };
 
 /* static */
@@ -914,13 +1002,41 @@ const Parameter& ParameterManager::parameter(
 
 /* static */
 uint8_t ParameterManager::ControlChangeToParameterId(uint8_t cc) {
-  return ResourcesManager::Lookup<uint8_t, uint8_t>(midi_cc_map, cc);
+  uint8_t cc_map = system_settings.data().midi_cc_map;
+  switch (cc_map){
+    case CCMAP_LAUNCHKEY:
+      /*
+      // .... save some bytes by truncating the cc maps and use conditionals instead.
+      if (cc <= 65){
+        return ResourcesManager::Lookup<uint8_t, uint8_t>(launchkey_cc_map, cc);
+      } else if (cc < 102){
+        return 0xff; // No mapping
+      } else {
+        return 0xfe; // Special mapping (dummy)
+      }
+       */
+      return ResourcesManager::Lookup<uint8_t, uint8_t>(launchkey_cc_map, cc);
+    default:
+      return (cc > 111) ? 255 : ResourcesManager::Lookup<uint8_t, uint8_t>(midi_cc_map, cc); // Standard Ambika midi CC map
+  }
 }
 
 /* static */
 uint8_t ParameterManager::AddressToParameterId(uint8_t address) {
-  return ResourcesManager::Lookup<uint8_t, uint8_t>(midi_nrpn_map, address);
+  // KEZ MOD : Last 128 bytes of nrpn table are all 254 or 255 so we can save 128 bytes
+  // by truncating the table and just send value 254 for addresses 128-191 or 255 for address > 191
+  uint8_t address_mod = (address > 127 && address < 192) ? 254 : (address > 192) ? 255 : address;
+  return ResourcesManager::Lookup<uint8_t, uint8_t>(midi_nrpn_map, address_mod);
 }
+/* static */
+
+#ifndef DIRTY_CC_LOOKUP
+uint8_t ParameterManager::ParameterMidiCC(uint8_t parameter_id, uint8_t cc_map) {
+  // Only lookup parameters less than 32 to keep the table small as we know there are no CC assignments for multi-instance parameters whose parameter id > 31
+  // Table starts at parameter 25
+  return (parameter_id > 31) ? 0xff : ResourcesManager::Lookup<uint8_t, uint8_t>(launchkey_parameter_midi_cc, parameter_id - 25);
+}
+#endif
 
 /* static */
 void ParameterManager::SetValue(

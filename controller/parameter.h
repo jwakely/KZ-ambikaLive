@@ -54,7 +54,8 @@ enum Unit {
   UNIT_MIDI_IN_MASK,
   UNIT_MIDI_OUT_MODE,
   UNIT_MIDI_CHANNEL,
-  UNIT_LAST
+  UNIT_CC_MAP,
+  UNIT_LAST,
 };
 
 enum ParameterLevel {
@@ -96,7 +97,7 @@ struct Parameter {
   
   uint8_t Scale(uint8_t value_7bits) const;
   uint8_t Clamp(uint8_t value) const;
-  uint8_t Increment(uint8_t current_value, int8_t increment) const;
+  uint8_t Increment(uint8_t current_value, int8_t increment, bool cycle) const;
   uint8_t RandomValue() const;
   
   uint8_t is_snapped(uint8_t current_value, uint8_t value_7bits) const;
@@ -117,7 +118,7 @@ struct Parameter {
   static void PrintNote(uint8_t note, char* buffer);
 };
 
-const uint8_t kNumParameters = 75;
+const uint8_t kNumParameters = 77;
 typedef Parameter PROGMEM prog_Parameter;
 
 // The parameter manager is the class who knows how to apply a parameter change
@@ -132,6 +133,7 @@ class ParameterManager {
   
   static uint8_t ControlChangeToParameterId(uint8_t cc);
   static uint8_t AddressToParameterId(uint8_t address);
+  static uint8_t ParameterMidiCC(uint8_t parameter_id, uint8_t cc_map);
   
   static void SetValue(
       const Parameter& parameter,
@@ -149,9 +151,10 @@ class ParameterManager {
       const Parameter& parameter,
       uint8_t part,
       uint8_t instance_index,
-      int8_t increment) {
+      int8_t increment,
+      bool cycle) {
     uint8_t value = GetValue(parameter, part, instance_index);
-    value = parameter.Increment(value, increment);
+    value = parameter.Increment(value, increment, cycle);
     SetValue(parameter, part, instance_index, value, 1);
   }
   
@@ -159,9 +162,10 @@ class ParameterManager {
       uint8_t parameter_index,
       uint8_t part,
       uint8_t instance_index,
-      int8_t increment) {
+      int8_t increment,
+      bool cycle) {
     const Parameter& p = parameter(parameter_index);
-    Increment(p, part, instance_index, increment);
+    Increment(p, part, instance_index, increment, cycle);
   }
   
   static void Scale(
