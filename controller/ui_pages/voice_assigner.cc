@@ -32,6 +32,7 @@ const prog_EventHandlers VoiceAssigner::event_handlers_ PROGMEM = {
   OnInit,
   SetActiveControl,
   OnIncrement,
+  OnIncrementAndCycle,
   OnClick,
   OnPot,
   OnKey,

@@ -45,6 +45,7 @@ const prog_EventHandlers KnobAssigner::event_handlers_ PROGMEM = {
   OnInit,
   SetActiveControl,
   OnIncrement,
+  OnIncrementAndCycle,
   OnClick,
   OnPot,
   OnKey,

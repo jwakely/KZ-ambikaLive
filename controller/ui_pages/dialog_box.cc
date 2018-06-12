@@ -34,6 +34,7 @@ const prog_EventHandlers DialogBox::event_handlers_ PROGMEM = {
   OnInit,
   SetActiveControl,
   OnIncrement,
+  OnIncrementAndCycle,
   OnClick,
   OnPot,
   OnKey,
