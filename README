@@ -81,9 +81,10 @@ As this is forked on top of YAM, all the YAM changes also apply.
 
 
 Notes on building the source:
+
 	- For the voicecard build to succeed, avr-gcc 4.3.3 must be used. Any later versions will build, but result in a silent voice card.
 	- For the controller, avr-gcc 4.3.3 build will break our file size limit (61440 bytes)
-	- BUT! v 4.5.1 will successfully build the controller and save us about 2700 bytes!!!
+	- But 4.5.1 will successfully build the controller and save us about 2700 bytes!!!
 	
 
 --- YAM Notes ---
