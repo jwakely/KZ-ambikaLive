@@ -1,6 +1,6 @@
-// Copyright 2011 Olivier Gillet.
+// Copyright 2011 Emilie Gillet.
 //
-// Author: Olivier Gillet (ol.gillet@gmail.com)
+// Author: Emilie Gillet (emilie.o.gillet@gmail.com)
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,13 +23,13 @@
 #include "avrlib/base.h"
 
 namespace ambika {
-  
+
 static const uint32_t kSampleRateNum = 2000000L;
 static const uint32_t kSampleRateDen = 51L;
 
 // One control signal sample is generated for each 40 audio sample.
 static const uint8_t kControlRate = 40;
-  
+
 const uint8_t kNumArpeggiatorPatterns = 30;
 const uint8_t kNumParts = 6;
 const uint8_t kNumVoices = 6;

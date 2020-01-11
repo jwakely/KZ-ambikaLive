@@ -116,7 +116,7 @@ Due to qualitative differences of the 'saw' and 'square' oscillators etc, levels
 
 This repository was originally a copy of the Mutable Instruments GitHub Ambika repository at https://github.com/pichenettes/ambika
  
-Original developer: Olivier Gillet (olivier@mutable-instruments.net)
+Original developer: Emilie Gillet (olivier@mutable-instruments.net)
 
 The firmware is released under a GPL3.0 license. It includes a variant of the formant synthesis algorithm used in Peter Knight's Cantarino speech synthesizer.
 
