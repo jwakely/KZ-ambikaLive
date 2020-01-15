@@ -88,6 +88,7 @@ enum OscillatorAlgorithm {
   WAVEFORM_QUAD_PWM,
   WAVEFORM_FM_FB,
   WAVEFORM_POLYBLEP_CSAW,
+  WAVEFORM_VOWEL_2,
   WAVEFORM_LAST
 };
 
@@ -167,21 +168,21 @@ enum ModulationSource {
   MOD_SRC_ENV_1,
   MOD_SRC_ENV_2,
   MOD_SRC_ENV_3,
-  
+
   MOD_SRC_LFO_1,
   MOD_SRC_LFO_2,
   MOD_SRC_LFO_3,
   MOD_SRC_LFO_4,
-  
+
   MOD_SRC_OP_1,
   MOD_SRC_OP_2,
   MOD_SRC_OP_3,
   MOD_SRC_OP_4,
-  
+
   MOD_SRC_SEQ_1,
   MOD_SRC_SEQ_2,
   MOD_SRC_ARP_STEP,
-  
+
   MOD_SRC_VELOCITY,
   MOD_SRC_AFTERTOUCH,
   MOD_SRC_PITCH_BEND,
@@ -225,7 +226,7 @@ enum ModulationDestination {
   MOD_DST_DECAY,
   MOD_DST_RELEASE,
   MOD_DST_LFO_4,
-  
+
   MOD_DST_VCA,
   MOD_DST_OSC_1_DRUM,
   MOD_DST_OSC_2_DRUM,
@@ -252,7 +253,7 @@ static const uint8_t kNumModulationDestinations = MOD_DST_LAST;
 struct Patch {
   // Offset: 0-8
   OscillatorSettings osc[kNumOscillators];
-  
+
   // Offset: 8-16
   uint8_t mix_balance;
   uint8_t mix_op;
@@ -267,7 +268,7 @@ struct Patch {
   FilterSettings filter[2];
   int8_t filter_env;
   int8_t filter_lfo;
-  
+
   // Offset: 24-48
   EnvelopeLfoSettings env_lfo[kNumEnvelopes];
 
@@ -277,14 +278,14 @@ struct Patch {
 
   // Offset: 50-92
   Modulation modulation[kNumModulations];
-  
+
   // Offset: 92-104
   Modifier modifier[kNumModifiers];
-  
+
   // Offset: 104-106
   int8_t filter_velo;
   int8_t filter_kbt;
-  
+
   // Offset: 106-112
   uint8_t padding[6];
 };
@@ -318,7 +319,7 @@ enum PatchParameter {
   PRM_PATCH_FILTER2_MODE,
   PRM_PATCH_FILTER1_ENV,
   PRM_PATCH_FILTER1_LFO,
-  
+
   PRM_PATCH_ENV_ATTACK,
   PRM_PATCH_ENV_DECAY,
   PRM_PATCH_ENV_SUSTAIN,
@@ -327,18 +328,18 @@ enum PatchParameter {
   PRM_PATCH_LFO_RATE,
   PRM_PATCH_LFO_ATTACK,
   PRM_PATCH_LFO_SYNC,
-  
+
   PRM_PATCH_VOICE_LFO_SHAPE = 48,
   PRM_PATCH_VOICE_LFO_RATE,
-  
+
   PRM_PATCH_MOD_SOURCE,
   PRM_PATCH_MOD_DESTINATION,
   PRM_PATCH_MOD_AMOUNT,
-  
+
   PRM_PATCH_MOD_OPERAND1 = 92,
   PRM_PATCH_MOD_OPERAND2,
   PRM_PATCH_MOD_OPERATOR,
-  
+
   PRM_PATCH_FILTER1_VELO = 104,
   PRM_PATCH_FILTER1_KBT
 };
