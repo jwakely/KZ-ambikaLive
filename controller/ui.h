@@ -27,6 +27,8 @@
 #include "avrlib/devices/switch.h"
 #include "avrlib/ui/event_queue.h"
 
+#include "common/features.h"
+
 #include "controller/hardware_config.h"
 #include "controller/resources.h"
 
@@ -57,7 +59,7 @@ enum SwitchNumber {
   SWITCH_6,
   SWITCH_7,
   SWITCH_8,
-  
+
   SWITCH_SHIFT_1,
   SWITCH_SHIFT_2,
   SWITCH_SHIFT_3,
@@ -76,24 +78,24 @@ enum ActiveControl {
 enum UiPageNumber {
   PAGE_OSCILLATORS,
   PAGE_MIXER,
-  
+
   PAGE_FILTER,
-  
+
   PAGE_ENV_LFO,
   PAGE_VOICE_LFO,
-  
+
   PAGE_MODULATIONS,
-  
+
   PAGE_PART,
   PAGE_PART_ARPEGGIATOR,
   PAGE_PART_SEQUENCER,
-  
+
   PAGE_MULTI,
   PAGE_MULTI_CLOCK,
-  
+
   PAGE_PERFORMANCE,
   PAGE_KNOB_ASSIGN,
-  
+
   PAGE_LIBRARY,
   PAGE_VERSION_MANAGER,
   PAGE_SYSTEM_SETTINGS,
@@ -144,7 +146,7 @@ struct Dialog {
 
 struct PageInfo {
   uint8_t index;
-  
+
   const prog_EventHandlers* event_handlers;
   // For a standard parameter editing page, indices of the parameters to edit ;
   // or 0xf0 -- x0f7 for the 8 assignable knobs.
@@ -163,18 +165,18 @@ typedef PageInfo PROGMEM prog_PageInfo;
 class Ui {
  public:
   Ui() { }
-  
+
   static void Init();
   static void Poll();
   static void DoEvents();
   static void FlushEvents() {
     queue_.Flush();
   }
-  
+
   static uint8_t has_events() {
     return queue_.available();
   }
-  
+
   static void ShowPageRelative(int8_t increment);
   static void MoveActiveControl(int8_t increment);
   static void ShowPage(UiPageNumber page, uint8_t initialize);
@@ -187,15 +189,15 @@ class Ui {
 
   static void ShowDialogBox(uint8_t dialog_id, Dialog dialog, uint8_t choice);
   static void CloseDialogBox(uint8_t return_value);
-  
+
   static UiState* mutable_state() { return &state_; }
   static const UiState& state() { return state_; }
-  
+
   static uint8_t GetValue(uint8_t address) {
     return static_cast<uint8_t*>(
         static_cast<void*>(&state_))[address];
   }
-  
+
   static uint8_t OnNote(uint8_t note, uint8_t velocity) {
     if (event_handlers_.OnNote && \
           (*event_handlers_.OnNote)(note, velocity)) {
@@ -204,13 +206,13 @@ class Ui {
     }
     return 0;
   }
-  
+
   static uint8_t shifted() { return switches_.low(7); }
-  
+
  private:
   static UiPageNumber active_page_;
   static UiPageNumber most_recent_non_system_page_;
-   
+
   static uint8_t cycle_;
   static Encoder encoder_;
   static Switches switches_;
@@ -219,7 +221,7 @@ class Ui {
   static UiState state_;
   static EventQueue<8> queue_;
   static uint8_t pot_value_[8];
-  
+
   static uint8_t active_group_;
   static UiPageNumber most_recent_page_in_group_[9];
   static EventHandlers event_handlers_;
