@@ -77,6 +77,7 @@ uint8_t PerformancePage::OnClick() {
 
 /* static */
 uint8_t PerformancePage::OnKey(uint8_t key) {
+#ifndef DISABLE_PART_MUTES
   if (key <= SWITCH_4){
       multi.ToggleMute(key);
     return 1;
@@ -85,6 +86,9 @@ uint8_t PerformancePage::OnKey(uint8_t key) {
   } else {
       return ParameterEditor::OnKey(key);
   }
+#else
+  return ParameterEditor::OnKey(key);
+#endif
 }
 
 /* static */

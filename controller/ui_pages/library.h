@@ -20,6 +20,8 @@
 #ifndef CONTROLLER_UI_PAGES_LIBRARY_H_
 #define CONTROLLER_UI_PAGES_LIBRARY_H_
 
+#include "common/features.h"
+
 #include "controller/controller.h"
 #include "controller/storage.h"
 #include "controller/ui_pages/ui_page.h"
@@ -34,7 +36,7 @@ enum LibraryAction {
 class Library : public UiPage {
  public:
   Library() { }
-  
+
   static void OnInit(PageInfo* info);
   static void SetActiveControl(ActiveControl active_control);
 
@@ -44,9 +46,9 @@ class Library : public UiPage {
 
   static void UpdateScreen();
   static void UpdateLeds();
-  
+
   static const prog_EventHandlers event_handlers_;
-  
+
   static void OnDialogClosed(uint8_t dialog_id, uint8_t return_value);
   static void SaveLocation() {
     loaded_objects_indices_[location_.index()] = location_.bank_slot();
@@ -66,7 +68,7 @@ class Library : public UiPage {
 
   static uint8_t OnKeyBrowse(uint8_t key);
   static uint8_t OnKeySave(uint8_t key);
-  
+
   static LibraryAction action_;
   static StorageLocation location_;
   static uint16_t loaded_objects_indices_[kNumVoices * 3 + 1];
@@ -75,7 +77,7 @@ class Library : public UiPage {
   static uint8_t more_;
   static uint8_t initialization_mode_;
   static uint8_t name_dirty_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(Library);
 };
 

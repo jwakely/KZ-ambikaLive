@@ -17,8 +17,6 @@
 //
 // Special UI page for loading/saving operations.
 
-#include "controller/features.h"
-
 #include "controller/ui_pages/library.h"
 
 #include "avrlib/string.h"
@@ -117,7 +115,7 @@ uint8_t Library::OnIncrement(int8_t increment) {
     active_control_ = Clip(active_control_ + increment, 0, 16);
     // KEZ TODO: Print name on second line so we know what we're saving over
   }
-  
+
   if (action_ == LIBRARY_ACTION_BROWSE) {
     if (location_.bank_slot() != loaded_objects_indices_[location_.index()]) {
       // Send program change.
@@ -127,7 +125,7 @@ uint8_t Library::OnIncrement(int8_t increment) {
             location_.bank,
             location_.slot);
       }
-      
+
       if (storage.Load(location_) != FS_OK) {
         is_edit_buffer_ = 1;
         memcpy_P(name_, blank_patch_name, sizeof(name_));
@@ -137,7 +135,7 @@ uint8_t Library::OnIncrement(int8_t increment) {
       SaveLocation();
     }
   }
-  
+
   return 1;
 }
 
@@ -212,7 +210,7 @@ uint8_t Library::OnKeyBrowse(uint8_t key) {
         ui.ShowPage(PAGE_VERSION_MANAGER);
         break;
 #endif
-        
+
       case SWITCH_7:
         more_ ^= 1;
         break;
@@ -226,7 +224,7 @@ uint8_t Library::OnKeyBrowse(uint8_t key) {
       case SWITCH_1:
         ui.ShowPage(PAGE_SYSTEM_SETTINGS);
         break;
-        
+
       case SWITCH_2:
         {
           Dialog d;
@@ -236,7 +234,7 @@ uint8_t Library::OnKeyBrowse(uint8_t key) {
           ui.ShowDialogBox(3, d, 0);
         }
         break;
-        
+
       case SWITCH_3:
         ui.ShowPage(PAGE_OS_INFO);
         break;
@@ -248,7 +246,7 @@ uint8_t Library::OnKeyBrowse(uint8_t key) {
       case SWITCH_7:
         more_ ^= 1;
         break;
-        
+
       case SWITCH_8:
         ui.ShowPreviousPage();
         break;
@@ -296,11 +294,11 @@ uint8_t Library::OnKeySave(uint8_t key) {
         }
       }
       break;
-      
+
     case SWITCH_8:
       Browse();
       break;
-  }   
+  }
   return 1;
 }
 
@@ -311,7 +309,7 @@ void Library::PrintActiveObjectName(char* buffer) {
   } else {
     ResourcesManager::LoadStringResource(
         STR_RES_PT_X_PATCH + location_.object, &buffer[0], 14);
-    buffer[3] = '1' + location_.part; 
+    buffer[3] = '1' + location_.part;
   }
 }
 
@@ -327,10 +325,10 @@ void Library::UpdateLocation() {
 /* static */
 void Library::UpdateScreen() {
   UpdateLocation();
-  
+
   // First line: File browser
   char* buffer = display.line_buffer(0) + 1;
-  
+
   PrintActiveObjectName(&buffer[0]);
   AlignLeft(&buffer[0], 15);
 
@@ -378,14 +376,14 @@ void Library::UpdateScreen() {
     buffer[21] = 127;  // "<-"
     buffer[34] = kDelimiter;
   }
-  
+
   // And now the cursor.
   if (action_ == LIBRARY_ACTION_SAVE) {
     display.set_cursor_character(edit_mode_ == EDIT_IDLE ? 0xff : '_');
   } else {
     display.set_cursor_character(' ');
   }
-  
+
   if (active_control_ == 0) {
     display.set_cursor_position(16);
   } else if (active_control_ == 1) {
@@ -447,7 +445,7 @@ void Library::OnDialogClosed(uint8_t dialog_id, uint8_t return_value) {
       }
       Browse();
       break;
-    
+
     // Handler for the save multi dialog box.
     case 3:
       if (return_value) {
