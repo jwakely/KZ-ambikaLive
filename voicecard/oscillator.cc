@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "controller/features.h"
+
 #include "voicecard/oscillator.h"
 
 #include "voicecard/voicecard.h"
@@ -47,7 +49,7 @@ namespace ambika {
   uint8_t* sync_input = sync_input_; \
   uint8_t* sync_output = sync_output_; \
   while (size--) {
-  
+
 #define END_SAMPLE_LOOP \
   } \
   phase_.integral = phase.integral; \
@@ -67,7 +69,7 @@ namespace ambika {
   div_table_index -= 128; \
   uint8_t result_quotient = ResourcesManager::Lookup<uint8_t, uint8_t>( \
     wav_res_division_table, div_table_index);
-  
+
 #define CALCULATE_BLEP_INDEX(increment, quotient, quotient_shifts, result_blep_index) \
 uint16_t result_blep_index = increment; \
 int8_t shifts = quotient_shifts; \
@@ -80,7 +82,7 @@ while (shifts > 0) { \
   --shifts; \
 } \
 result_blep_index = U16U8MulShift8(result_blep_index, quotient);
-  
+
 // ------- Silence (useful when processing external signals) -----------------
 void Oscillator::RenderSilence(uint8_t* buffer) {
   uint8_t size = kAudioBlockSize;
@@ -153,7 +155,7 @@ void Oscillator::RenderCzResoSaw(uint8_t* buffer) {
       *buffer++ = U8U8MulShift8(carrier, window);
     }
   END_SAMPLE_LOOP
-  data_.secondary_phase = phase_2;  
+  data_.secondary_phase = phase_2;
 }
 
 void Oscillator::RenderCzResoPulse(uint8_t* buffer) {
@@ -185,13 +187,13 @@ void Oscillator::RenderCzResoPulse(uint8_t* buffer) {
       *buffer++ = U8U8MulShift8(carrier, window);
     }
   END_SAMPLE_LOOP
-  data_.secondary_phase = phase_2;  
+  data_.secondary_phase = phase_2;
 }
 
 void Oscillator::RenderCzResoTri(uint8_t* buffer) {
   uint16_t increment = phase_increment_.integral + (
       (phase_increment_.integral * uint32_t(parameter_)) >> 2);
-  uint8_t type = shape_ - WAVEFORM_CZ_SAW_LP; //BER:TODO: Explore these latent oscillator variations left out by Olivier
+  uint8_t type = shape_ - WAVEFORM_CZ_SAW_LP; //BER:TODO: Explore these latent oscillator variations left out by Emilie
   uint16_t phase_2 = data_.secondary_phase;
   BEGIN_SAMPLE_LOOP
     UPDATE_PHASE
@@ -210,22 +212,22 @@ void Oscillator::RenderCzResoTri(uint8_t* buffer) {
       *buffer++ = U8U8MulShift8(carrier, window);
     }
   END_SAMPLE_LOOP
-  data_.secondary_phase = phase_2;  
+  data_.secondary_phase = phase_2;
 }
 
 // ------- FM ----------------------------------------------------------------
 void Oscillator::RenderFm(uint8_t* buffer) {
-  uint8_t offset = fm_parameter_ < 24 ? 0 : 
+  uint8_t offset = fm_parameter_ < 24 ? 0 :
     (fm_parameter_ > 48 ? 24 : fm_parameter_-24);
   uint16_t multiplier = ResourcesManager::Lookup<uint16_t, uint8_t>(
       lut_res_fm_frequency_ratios, offset);
   uint16_t increment = (
       static_cast<int32_t>(phase_increment_.integral) * multiplier) >> 8;
   parameter_ <<= 1;
-  
+
   uint16_t phase_2 = data_.secondary_phase;
   uint8_t last_output = data_.output_sample;
-  uint8_t fb_phase_mod = 
+  uint8_t fb_phase_mod =
     (shape_ == WAVEFORM_FM || parameter_ < 128) ? 0 : parameter_ - 128;
   BEGIN_SAMPLE_LOOP
     UPDATE_PHASE
@@ -257,7 +259,7 @@ void Oscillator::RenderVowel(uint8_t* buffer) {
     offset_1 = U8U8Mul(offset_1, 7);
     uint8_t offset_2 = offset_1 + 7;
     uint8_t balance = parameter_ & 15;
-    
+
     // Interpolate formant frequencies.
     for (uint8_t i = 0; i < 3; ++i) {
       data_.vw.formant_increment[i] = U8U4MixU12(
@@ -268,7 +270,7 @@ void Oscillator::RenderVowel(uint8_t* buffer) {
           balance);
       data_.vw.formant_increment[i] <<= 3;
     }
-    
+
     // Interpolate formant amplitudes.
     for (uint8_t i = 0; i < 4; ++i) {
       uint8_t amplitude_a = ResourcesManager::Lookup<uint8_t, uint8_t>(
@@ -282,12 +284,13 @@ void Oscillator::RenderVowel(uint8_t* buffer) {
           amplitude_b, balance);
     }
   }
-  
-  int16_t phase_noise = S8S8Mul(Random::state_msb(), data_.vw.noise_modulation);
+
+  int16_t phase_noise = (shape_ == WAVEFORM_VOWEL) ?
+    S8S8Mul(Random::state_msb(), data_.vw.noise_modulation) : 0;
   BEGIN_SAMPLE_LOOP
     int8_t result = 0;
     uint8_t phaselet;
-    
+
     data_.vw.formant_phase[0] += data_.vw.formant_increment[0];
     phaselet = (data_.vw.formant_phase[0] >> 8) & 0xf0;
     result = ResourcesManager::Lookup<uint8_t, uint8_t>(
@@ -299,13 +302,13 @@ void Oscillator::RenderVowel(uint8_t* buffer) {
     result += ResourcesManager::Lookup<uint8_t, uint8_t>(
         wav_res_formant_sine,
         phaselet | data_.vw.formant_amplitude[1]);
-    
+
     data_.vw.formant_phase[2] += data_.vw.formant_increment[2];
     phaselet = (data_.vw.formant_phase[2] >> 8) & 0xf0;
     result += ResourcesManager::Lookup<uint8_t, uint8_t>(
         wav_res_formant_square,
         phaselet | data_.vw.formant_amplitude[2]);
-    
+
     result = S8U8MulShift8(result, phase.integral >> 8);
     phase.integral -= phase_increment_int.integral;
     if ((phase.integral + phase_noise) < phase_increment_int.integral) {
@@ -320,6 +323,7 @@ void Oscillator::RenderVowel(uint8_t* buffer) {
   END_SAMPLE_LOOP
 }
 
+#ifndef BANDLIMITED_TRIANGLE
 // ------- New Triangle (Non-band-limited and with different waveshaping) ----
 void Oscillator::RenderNewTriangle(uint8_t* buffer) {
   BEGIN_SAMPLE_LOOP
@@ -332,6 +336,7 @@ void Oscillator::RenderNewTriangle(uint8_t* buffer) {
     *buffer++ = v;
   END_SAMPLE_LOOP
 }
+#endif
 
 // ------- Dirty Pwm (kills kittens) -----------------------------------------
 void Oscillator::RenderDirtyPwm(uint8_t* buffer) {
@@ -342,10 +347,10 @@ void Oscillator::RenderDirtyPwm(uint8_t* buffer) {
 }
 
 // ------- Polyblep Saw ------------------------------------------------------
-// Heavily inspired by Oliviers experimental implementation for STM but
+// Heavily inspired by Emilies experimental implementation for STM but
 // dumbed down and much less generic (does not do polyblep for sync etc)
 void Oscillator::RenderPolyBlepSaw(uint8_t* buffer) {
-  
+
   // calculate (1/increment) for later multiplication with current phase
   CALCULATE_DIVISION_FACTOR(phase_increment_.integral, quotient, quotient_shifts)
 
@@ -391,7 +396,7 @@ void Oscillator::RenderPolyBlepSaw(uint8_t* buffer) {
 }
 
 // ------- Polyblep CS-80 Saw ------------------------------------------------
-// Heavily inspired by Oliviers experimental implementation for STM but
+// Heavily inspired by Emilies experimental implementation for STM but
 // dumbed down and much less generic (does not do polyblep for sync etc)
 void Oscillator::RenderPolyBlepCSaw(uint8_t* buffer) {
 
@@ -445,7 +450,7 @@ void Oscillator::RenderPolyBlepCSaw(uint8_t* buffer) {
 }
 
 // ------- Polyblep Pwm ------------------------------------------------------
-// Heavily inspired by Oliviers experimental implementation for STM but
+// Heavily inspired by Emilies experimental implementation for STM but
 // dumbed down and much less generic (does not do polyblep for sync etc)
 void Oscillator::RenderPolyBlepPwm(uint8_t* buffer) {
 
@@ -454,22 +459,22 @@ void Oscillator::RenderPolyBlepPwm(uint8_t* buffer) {
 
   // Revert to pure saw (=single blep) to avoid cpu overload for high notes
   uint8_t revert_to_saw = note_ > 107;
-     
-  // PWM modulation (constrained to extend over at least one increment) 
+
+  // PWM modulation (constrained to extend over at least one increment)
   uint8_t pwm_limit = 127 - (phase_increment_.integral >> 8);
-  uint16_t pwm_phase = 
+  uint16_t pwm_phase =
     (parameter_ < pwm_limit) ? /* prevent dual bleps at same increment */
     static_cast<uint16_t>(127 + parameter_) << 8 :
     static_cast<uint16_t>(127 + pwm_limit) << 8;
   uint8_t high = phase_.integral >= pwm_phase;
-  
+
   uint8_t next_sample = data_.output_sample;
   BEGIN_SAMPLE_LOOP
     UPDATE_PHASE
     uint8_t this_sample = next_sample;
 
     // Compute naive waveform
-    next_sample = revert_to_saw ? 
+    next_sample = revert_to_saw ?
       (phase.integral >> 8) : (phase.integral < pwm_phase ? 0 : 255);
 
     if (phase.carry) {
@@ -507,7 +512,7 @@ void Oscillator::RenderQuad(uint8_t* buffer) {
     phase_increment += phase_spread;
     increments[i] = phase_increment;
   }
-  
+
   if (shape_ == WAVEFORM_QUAD_SAW_PAD) {
     BEGIN_SAMPLE_LOOP
       UPDATE_PHASE
@@ -571,7 +576,7 @@ void Oscillator::RenderFilteredNoise(uint8_t* buffer) {
 // The position is freely determined by the parameter
 void Oscillator::RenderInterpolatedWavetable(uint8_t* buffer) {
   // Which wavetable should we play?.
-  const prog_uint8_t* wavetable_definition = 
+  const prog_uint8_t* wavetable_definition =
       wav_res_wavetables + U8U8Mul(
           shape_ - WAVEFORM_WAVETABLE_1,
           18);
@@ -635,22 +640,23 @@ const Oscillator::RenderFn Oscillator::fn_table_[] PROGMEM = {
   &Oscillator::RenderCzResoPulse,
   &Oscillator::RenderCzResoPulse,
   &Oscillator::RenderCzResoTri,
-  
+
   &Oscillator::RenderQuad,
-  
+
   &Oscillator::RenderFm,
-  
+
   &Oscillator::Render8BitLand,
   &Oscillator::RenderDirtyPwm,
   &Oscillator::RenderFilteredNoise,
   &Oscillator::RenderVowel,
-  
+
   &Oscillator::RenderInterpolatedWavetable,
-  
+
   &Oscillator::RenderSimpleWavetable,
   &Oscillator::RenderQuad,
   &Oscillator::RenderFm,
-  &Oscillator::RenderPolyBlepCSaw
+  &Oscillator::RenderPolyBlepCSaw,
+  &Oscillator::RenderVowel
 };
 
 }  // namespace
