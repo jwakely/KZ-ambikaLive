@@ -142,6 +142,7 @@ oldsaw
 qpwm
 fmfb
 csaw
+vowel 2
 
 tri
 sqr
