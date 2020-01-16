@@ -22,6 +22,8 @@
 
 #include "avrlib/base.h"
 
+#include "common/features.h"
+
 #include "controller/resources.h"
 #include "controller/controller.h"
 
@@ -69,18 +71,18 @@ enum ParameterLevel {
 struct Parameter {
   // Whether this parameter belongs to a patch, a part, or the global level.
   uint8_t level;
-  
+
   // At which offset in the datastructure this parameter resides
   uint8_t offset;
-  
+
   // Unit of this parameter. This is used to invoke a specific format function
   // for displaying the parameter value on screen.
   uint8_t unit;
-  
+
   // Minimum and maximum value of this parameter.
   uint8_t min_value;
   uint8_t max_value;
-  
+
   // For parameters grouped into banks (eg: modulation matrix):
   // - number of instances of this parameter.
   // - bytes the offset must be increased to jump to the next instance.
@@ -89,17 +91,17 @@ struct Parameter {
   uint8_t stride;
   uint8_t indexed_by;
   uint8_t midi_cc;
-  
+
   // Resource id of the short and long name of the parameter
   ResourceId short_name;
   ResourceId long_name;
   ResourceId object;
-  
+
   uint8_t Scale(uint8_t value_7bits) const;
   uint8_t Clamp(uint8_t value) const;
   uint8_t Increment(uint8_t current_value, int8_t increment, bool cycle) const;
   uint8_t RandomValue() const;
-  
+
   uint8_t is_snapped(uint8_t current_value, uint8_t value_7bits) const;
 
   void PrintValue(uint8_t value, char* buffer, uint8_t width) const;
@@ -114,7 +116,7 @@ struct Parameter {
       char* buffer,
       uint8_t name_width,
       uint8_t value_width) const;
-  
+
   static void PrintNote(uint8_t note, char* buffer);
 };
 
@@ -128,13 +130,13 @@ class ParameterManager {
   ParameterManager() { }
 
   static void Init();
-  
+
   static const Parameter& parameter(uint8_t index);
-  
+
   static uint8_t ControlChangeToParameterId(uint8_t cc);
   static uint8_t AddressToParameterId(uint8_t address);
   static uint8_t ParameterMidiCC(uint8_t parameter_id, uint8_t cc_map);
-  
+
   static void SetValue(
       const Parameter& parameter,
       uint8_t part,
@@ -157,7 +159,7 @@ class ParameterManager {
     value = parameter.Increment(value, increment, cycle);
     SetValue(parameter, part, instance_index, value, 1);
   }
-  
+
   static void Increment(
       uint8_t parameter_index,
       uint8_t part,
@@ -167,7 +169,7 @@ class ParameterManager {
     const Parameter& p = parameter(parameter_index);
     Increment(p, part, instance_index, increment, cycle);
   }
-  
+
   static void Scale(
       const Parameter& parameter,
       uint8_t part,
@@ -184,7 +186,7 @@ class ParameterManager {
     const Parameter& p = parameter(parameter_index);
     Scale(p, part, instance_index, value);
   }
-  
+
   static uint8_t is_snapped(
       const Parameter& parameter,
       uint8_t part,
@@ -202,12 +204,12 @@ class ParameterManager {
     const Parameter& p = parameter(parameter_index);
     return is_snapped(p, part, instance_index, value);
   }
-  
+
  private:
   static Parameter dummy_parameter_;
   static Parameter cached_definition_;
   static uint8_t cached_index_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(ParameterManager);
 };
 

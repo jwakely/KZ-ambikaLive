@@ -40,6 +40,8 @@
 
 #include "avrlib/base.h"
 
+#include "common/features.h"
+
 namespace ambika {
 
 static const uint8_t kFreeSlot = 0xff;
@@ -53,7 +55,7 @@ struct NoteEntry {
 // This looks crazy, but we are more concerned about RAM used than code size here.
 template<uint8_t capacity>
 class NoteStack {
- public: 
+ public:
   NoteStack() { }
   void Init() { Clear(); }
   void NoteOn(uint8_t note, uint8_t velocity) {
@@ -98,7 +100,7 @@ class NoteStack {
     }
     ++size_;
   }
-  
+
   void NoteOff(uint8_t note) {
     uint8_t current = root_ptr_;
     uint8_t previous = 0;
@@ -129,7 +131,7 @@ class NoteStack {
      --size_;
     }
   }
-  
+
   void Clear() {
     size_ = 0;
     memset(pool_ + 1, 0, sizeof(NoteEntry) * capacity);
