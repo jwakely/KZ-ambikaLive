@@ -21,6 +21,8 @@
 
 #include "avrlib/string.h"
 
+#include "common/features.h"
+
 #include "controller/display.h"
 #include "controller/leds.h"
 #include "controller/multi.h"
@@ -100,11 +102,14 @@ void PerformancePage::UpdateLeds() {
     }
     leds.set_pixel(LED_1 + (multi.step() & 0x07), 0x03);
   }
+#ifndef DISABLE_PART_MUTES
+  // KZ MOD - Set the first 4 LEDs according to Part Mutes
   for (uint8_t led = LED_1; led <= LED_4; led++){
     if (!multi.IsPartMuted(led)){
       leds.set_pixel(led, 0xf0);
     }
   }
+#endif
 }
 
 }  // namespace ambika
