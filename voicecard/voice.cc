@@ -17,6 +17,8 @@
 //
 // Main synthesis engine.
 
+#include "common/features.h"
+
 #include "voicecard/voice.h"
 
 #include "voicecard/audio_out.h"
