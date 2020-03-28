@@ -738,6 +738,7 @@ void Part::Clock() {
 
 
   // KZ MOD: Allow muting parts with SWITCH1-6 on the performance page.
+#ifndef DISABLE_PART_MUTES
 void Part::ToggleMute(){
   if (is_muted_){
     is_muted_ = false;
@@ -748,6 +749,7 @@ void Part::ToggleMute(){
     SetValue(PRM_PART_VOLUME, 0, 0);
   }
 }
+#endif
 
 void Part::Start() {
   memset(sequencer_step_, 0, kNumSequences);
@@ -1047,20 +1049,20 @@ void Part::ClockSequencer() {
 #endif
 
 
-  #ifndef DISABLE_LAUNCHKEY_MODE
+#ifndef DISABLE_LAUNCHKEY_MODE
   // KZ MOD ---- LaunchKeyStuff ------------
   // Dispatch note to Lanuchkey here?
   // RGB LED Midi Notes
   // CH16, Notes 40 - 51, but will need arrays as they arent sequential
   // Color Set by Velocity, (see lookup table)
+  // THIS IS IN THE WRONG SPOT - SHOULD BE IN MULTI
   if (system_settings.data().launchkey_mode){
     uint8_t onPad = sequencer_step_[0] & 7;
     uint8_t offPad = (sequencer_step_[0] + 7) & 7;
-    midi_dispatcher.SetLaunchKeyPadColor(pgm_read_byte(launchkey_rgb_pad_notes_top + onPad), 100); // ON
-    midi_dispatcher.SetLaunchKeyPadColor(pgm_read_byte(launchkey_rgb_pad_notes_top + offPad), 0); // OFF
+//    midi_dispatcher.SetLaunchKeyPadColor(pgm_read_byte(launchkey_rgb_pad_notes_top + onPad), 100); // ON
+//    midi_dispatcher.SetLaunchKeyPadColor(pgm_read_byte(launchkey_rgb_pad_notes_top + offPad), 0); // OFF
   }
-  // ------------------------------
-  #endif
+#endif
 
   // Jump to the next step in the sequencer.
   for (uint8_t i = 0; i < kNumSequences; ++i) {
